@@ -6,6 +6,7 @@ pkgs.mkShell {
     awscli2
     jq
     zip
-    (python3.withPackages (ps: with ps; [ pip ]))
+    (python311.withPackages (ps: with ps; [ pip ]))
+    serverless
   ];
 }

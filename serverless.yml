@@ -1,0 +1,34 @@
+service: "pc-orders"
+
+provider:
+  name: "aws"
+  runtime: "python3.11"
+  memorySize: 512
+  timeout: 20
+  iam:
+    role: "arn:aws:iam::${env:AWS_USER_ID}:role/LabRole"
+
+plugins:
+  - "serverless-python-requirements"
+
+functions:
+  put_order_task_token:
+    handler: "functions/put_order_task_token.handler"
+  resume_order_workflow:
+    handler: "functions/resume_order_workflow.handler"
+
+  create_order:
+    handler: "functions/create_order.handler"
+    events:
+      - http:
+          path: "/orders"
+          method: "post"
+          cors: true
+
+  start_cooking_order:
+    handler: "functions/start_cooking_order.handler"
+    events:
+      - http:
+          path: "/orders/start-cooking"
+          method: "post"
+          cors: true
