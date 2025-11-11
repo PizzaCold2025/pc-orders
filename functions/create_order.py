@@ -13,11 +13,12 @@ class CreateOrderRequestItem(BaseModel):
 
 
 class CreateOrderRequest(BaseModel):
-    tenant_id: str
     items: list[CreateOrderRequestItem]
 
 
 def handler(event, context):
+    tenant_id = event["pathParameters"]["tenant_id"]
+
     data, err = parse_body(CreateOrderRequest, event)
     if err != None:
         return err
@@ -31,7 +32,7 @@ def handler(event, context):
     orders = dynamodb.Table("pc-orders")
 
     new_order = Order(
-        tenant_id=data.tenant_id,
+        tenant_id=tenant_id,
         order_id=str(uuid.uuid4()),
         items=[
             OrderItem(
@@ -40,7 +41,7 @@ def handler(event, context):
             )
             for item in data.items
         ],
-        status=OrderStatus.created,
+        status=OrderStatus.wait_for_cook,
     )
 
     new_order_dict = new_order.model_dump()

@@ -15,7 +15,15 @@ def parse_body(model: type[T], event: dict):
         return None, response(400, {"message": "Invalid request body."})
 
 
-def response(status_code, body):
+def response(status_code: int, body: Any):
+    raw_body = None
+
+    if body != None:
+        if type(body) == str:
+            raw_body = body
+        else:
+            raw_body = to_json(body)
+
     return {
         "statusCode": status_code,
         "headers": {
@@ -23,7 +31,7 @@ def response(status_code, body):
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Credentials": True,
         },
-        "body": to_json(body),
+        "body": raw_body,
     }
 
 

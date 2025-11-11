@@ -14,21 +14,63 @@ plugins:
 functions:
   put_order_task_token:
     handler: "functions/put_order_task_token.handler"
+
   resume_order_workflow:
     handler: "functions/resume_order_workflow.handler"
+
+  start_order_execution:
+    handler: "functions/start_order_execution.handler"
+
+  broadcast_order_status:
+    handler: "functions/websocket/broadcast_order_status.handler"
+
+  get_orders:
+    handler: "functions/get_orders.handler"
+    events:
+      - http:
+          path: "/{tenant_id}/orders"
+          method: "get"
+          cors: true
+
+  get_order:
+    handler: "functions/get_order.handler"
+    events:
+      - http:
+          path: "/{tenant_id}/orders/{order_id}"
+          method: "get"
+          cors: true
 
   create_order:
     handler: "functions/create_order.handler"
     events:
       - http:
-          path: "/orders"
+          path: "/{tenant_id}/orders"
           method: "post"
           cors: true
 
-  start_cooking_order:
-    handler: "functions/start_cooking_order.handler"
+  update_order_status:
+    handler: "functions/update_order_status.handler"
     events:
       - http:
-          path: "/orders/start-cooking"
-          method: "post"
+          path: "/{tenant_id}/orders/{order_id}/status"
+          method: "patch"
           cors: true
+
+  websocket_connect:
+    handler: "functions/websocket/connect.handler"
+    events:
+      - websocket:
+          route: "$connect"
+
+  websocket_disconnect:
+    handler: "functions/websocket/disconnect.handler"
+    events:
+      - websocket:
+          route: "$disconnect"
+
+  websocket_subscribe:
+    handler: "functions/websocket/subscribe.handler"
+    events:
+      - websocket:
+          route: "subscribe"
+          routeResponseSelectionExpression: "$default"

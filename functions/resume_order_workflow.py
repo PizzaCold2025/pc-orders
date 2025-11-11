@@ -11,7 +11,7 @@ class ResumeOrderWorkflowEvent(BaseModel):
 
 
 def handler(event, context):
-    data = ResumeOrderWorkflowEvent(**event)
+    data = ResumeOrderWorkflowEvent(**event["detail"])
 
     dynamodb = boto3.resource("dynamodb")
     orders = dynamodb.Table("pc-orders")
@@ -26,6 +26,12 @@ def handler(event, context):
 
     if order.task_token == None:
         raise Exception("Order workflow is not paused")
+
+    # Remove obsolete task token
+    orders.update_item(
+        Key={"tenant_id": data.tenant_id, "order_id": data.order_id},
+        UpdateExpression="REMOVE task_token",
+    )
 
     sf = boto3.client("stepfunctions")
     sf.send_task_success(
